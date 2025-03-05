@@ -1,0 +1,18 @@
+[package]
+name = "ct_ratio"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[[test]]
+name = "check_op"
+path = "test/op.rs"
+
+[[test]]
+name = "check_cmp"
+path = "test/cmp.rs"
+
+[[test]]
+name = "check_reduction"
+path = "test/reduction.rs"
