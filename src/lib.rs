@@ -28,9 +28,9 @@ pub const fn gcd(x: i128, y: i128) -> i128
    b
 }
 
-/// A type that represents a rational compile-time constant. This is an uninhabited type that cannot be instantiated, instead, it's intended to be used for generics.
+/// A type that represents a rational compile-time constant. This is a zero-sized type that's intended to be used for generics.
 /// Please note that two distict ```Ratio``` types may represent the same number. You can use the ```Reduced``` type alias from the ```Reducible``` trait to reduce the number to the lowest terms
-pub enum Ratio<const N: i128, const D: i128> {}
+pub struct Ratio<const N: i128, const D: i128>;
 
 /// A trait for rational compile-time constants that can be used as a trait bound for generics.
 pub trait StaticRatio
