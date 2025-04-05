@@ -65,8 +65,8 @@ pub trait Reducible
 impl<const N: i128, const D: i128> Reducible for Ratio<N,D>
 {
    const GCD_VALUE: i128 = gcd(N, D);
-   const R_NUMERATOR: i128 = N / Self::GCD_VALUE;
-   const R_DENOMINATOR: i128 = D / Self::GCD_VALUE;
+   const R_NUMERATOR: i128 = N.checked_div(Self::GCD_VALUE).unwrap();
+   const R_DENOMINATOR: i128 = D.checked_div(Self::GCD_VALUE).unwrap();
    const IS_IRREDUCIBLE: bool = Self::GCD_VALUE == 1;
    type Reduced = Ratio<{Self::R_NUMERATOR},{Self::R_DENOMINATOR}> where [(); {Self::R_NUMERATOR} as usize]:, [(); {Self::R_DENOMINATOR} as usize]:;
 }
@@ -91,8 +91,8 @@ pub struct RationalSum<X, Y>
 
 impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalSum<X,Y>
 {
-   const NUMERATOR: i128 = X::NUMERATOR*Y::DENOMINATOR.get() + X::DENOMINATOR.get()*Y::NUMERATOR;
-   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get()*Y::DENOMINATOR.get()).unwrap();
+   const NUMERATOR: i128 = X::NUMERATOR.checked_mul(Y::DENOMINATOR.get()).unwrap().checked_add(X::DENOMINATOR.get().checked_mul(Y::NUMERATOR).unwrap()).unwrap();
+   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get().checked_mul(Y::DENOMINATOR.get()).unwrap()).unwrap();
 }
 
 /// Helper type for substracting one rational constant from another
@@ -104,8 +104,8 @@ pub struct RationalDiff<X, Y>
 
 impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalDiff<X,Y>
 {
-   const NUMERATOR: i128 = X::NUMERATOR*Y::DENOMINATOR.get() - X::DENOMINATOR.get()*Y::NUMERATOR;
-   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get()*Y::DENOMINATOR.get()).unwrap();
+   const NUMERATOR: i128 = X::NUMERATOR.checked_mul(Y::DENOMINATOR.get()).unwrap().checked_sub(X::DENOMINATOR.get().checked_mul(Y::NUMERATOR).unwrap()).unwrap();
+   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get().checked_mul(Y::DENOMINATOR.get()).unwrap()).unwrap();
 }
 
 /// Helper type for multiplying two compile time rational constants
@@ -117,8 +117,8 @@ pub struct RationalProduct<X, Y>
 
 impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalProduct<X,Y>
 {
-   const NUMERATOR: i128 = X::NUMERATOR*Y::NUMERATOR;
-   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get()*Y::DENOMINATOR.get()).unwrap();
+   const NUMERATOR: i128 = X::NUMERATOR.checked_mul(Y::NUMERATOR).unwrap();
+   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get().checked_mul(Y::DENOMINATOR.get()).unwrap()).unwrap();
 }
 
 /// Helper type for dividing one rational constant by another
@@ -130,8 +130,8 @@ pub struct RationalDiv<X, Y>
 
 impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalDiv<X,Y>
 {
-   const NUMERATOR: i128 = X::NUMERATOR*Y::DENOMINATOR.get();
-   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get()*Y::NUMERATOR).unwrap();
+   const NUMERATOR: i128 = X::NUMERATOR.checked_mul(Y::DENOMINATOR.get()).unwrap();
+   const DENOMINATOR: NonZero<i128> = NonZero::new(X::DENOMINATOR.get().checked_mul(Y::NUMERATOR).unwrap()).unwrap();
 }
 
 /// Helper type for comparing two compile time rational constants
@@ -144,7 +144,7 @@ pub struct RationalCmp<X, Y>
 impl<X: StaticRatio, Y: StaticRatio> RationalCmp<X,Y>
 {
    /// Equals to ```true``` if generic parameters represent equal values
-   pub const EQUAL: bool = (X::NUMERATOR*Y::DENOMINATOR.get())==(Y::NUMERATOR*X::DENOMINATOR.get());
+   pub const EQUAL: bool = (X::NUMERATOR.checked_mul(Y::DENOMINATOR.get()).unwrap())==(Y::NUMERATOR.checked_mul(X::DENOMINATOR.get()).unwrap());
    /// Equals to ```true``` if generic parameters represent unequal values
    pub const NOT_EQUAL: bool = !(Self::EQUAL);
    const ABS_D1: i128 = if X::DENOMINATOR.get() > 0 { X::DENOMINATOR.get() } else { -(X::DENOMINATOR.get()) };
@@ -152,7 +152,7 @@ impl<X: StaticRatio, Y: StaticRatio> RationalCmp<X,Y>
    const SIGN1: i128 = if X::DENOMINATOR.get() > 0 { 1 } else { -1 };
    const SIGN2: i128 = if Y::DENOMINATOR.get() > 0 { 1 } else { -1 };
    /// Equals to ```true``` if ```X``` represents a number that is smaller than one represented by ```Y```
-   pub const LESSER: bool = Self::SIGN1*(X::NUMERATOR*(Self::ABS_D2)) < Self::SIGN2*(Y::NUMERATOR*(Self::ABS_D1));
+   pub const LESSER: bool = Self::SIGN1.checked_mul(X::NUMERATOR.checked_mul(Self::ABS_D2).unwrap()).unwrap() < Self::SIGN2.checked_mul(Y::NUMERATOR.checked_mul(Self::ABS_D1).unwrap()).unwrap();
    /// Equals to ```true``` if ```X``` represents a number that is bigger than one represented by ```Y```
    pub const GREATER: bool = !(Self::EQUAL) && !(Self::LESSER);
    /// Equals to ```true``` if ```X``` represents a number that is no smaller than one represented by ```Y```
