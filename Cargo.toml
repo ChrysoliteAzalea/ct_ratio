@@ -2,6 +2,10 @@
 name = "ct_ratio"
 version = "1.1.0"
 edition = "2021"
+license-file = "LICENSE"
+description = "Compile-time rational arithmetic for use in generics"
+repository = "https://github.com/ChrysoliteAzalea/ct_ratio"
+readme = "README.md"
 
 [dependencies]
 
