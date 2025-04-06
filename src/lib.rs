@@ -30,7 +30,24 @@ pub const fn gcd(x: i128, y: i128) -> i128
 
 /// A type that represents a rational compile-time constant. This is a zero-sized type that's intended to be used for generics.
 /// Please note that two distict ```Ratio``` types may represent the same number. You can use the ```Reduced``` type alias from the ```Reducible``` trait to reduce the number to the lowest terms
+#[derive(Clone,Copy)]
 pub struct Ratio<const N: i128, const D: i128>;
+
+impl<const N: i128, const D: i128> core::fmt::Display for Ratio<N,D>
+{
+   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+   {
+      write!(f, "{N} / {D}")
+   }
+}
+
+impl<const N: i128, const D: i128> core::fmt::Debug for Ratio<N,D>
+{
+   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+   {
+      <Self as core::fmt::Display>::fmt(self, f)
+   }
+}
 
 /// A trait for rational compile-time constants that can be used as a trait bound for generics.
 pub trait StaticRatio
@@ -83,6 +100,7 @@ impl<const N: i128, const D: i128> StaticRatio for Ratio<N,D>
 }
 
 /// Helper type for adding up two compile time rational constants
+#[derive(Clone,Copy)]
 pub struct RationalSum<X, Y>
 {
    _a: PhantomData<X>,
@@ -96,6 +114,7 @@ impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalSum<X,Y>
 }
 
 /// Helper type for substracting one rational constant from another
+#[derive(Clone,Copy)]
 pub struct RationalDiff<X, Y>
 {
    _a: PhantomData<X>,
@@ -109,6 +128,7 @@ impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalDiff<X,Y>
 }
 
 /// Helper type for multiplying two compile time rational constants
+#[derive(Clone,Copy)]
 pub struct RationalProduct<X, Y>
 {
    _a: PhantomData<X>,
@@ -122,6 +142,7 @@ impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalProduct<X,Y>
 }
 
 /// Helper type for dividing one rational constant by another
+#[derive(Clone,Copy)]
 pub struct RationalDiv<X, Y>
 {
    _a: PhantomData<X>,
@@ -135,6 +156,7 @@ impl<X: StaticRatio, Y: StaticRatio> StaticRatio for RationalDiv<X,Y>
 }
 
 /// Helper type for comparing two compile time rational constants
+#[derive(Clone,Copy)]
 pub struct RationalCmp<X, Y>
 {
    _a: PhantomData<X>,
